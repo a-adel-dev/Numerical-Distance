@@ -18,8 +18,9 @@ public class NumericalDistance : MonoBehaviour
     [SerializeField] Button startButton;
     [SerializeField] TextMeshProUGUI timerText;
     [SerializeField] TextMeshProUGUI resultText;
-    [SerializeField] TextMeshProUGUI promptText;
-    [SerializeField] int trialNumber;
+    [SerializeField] TMP_InputField trialNumberInputField;
+    
+    
     public GameObject startPanel;
     public GameObject testPanel;
 
@@ -29,9 +30,9 @@ public class NumericalDistance : MonoBehaviour
     public float hardNumberThreshold = 4f;
     
     [Header("CSV Export")]
-    public string fileName = "NumberComparisonResults";
+    public string fileName = "Numerical Distance Result";
 
-    private List<TrialResult> trialResults = new List<TrialResult>();
+    private List<TrialResult> trialResults = new();
     private int currentTrial = 0;
     private float trialStartTime;
     private int currentNumber;
@@ -52,6 +53,7 @@ public class NumericalDistance : MonoBehaviour
 
     void Start()
     {
+        
         startButton.onClick.AddListener(StartTest);
         greaterThanButton.onClick.AddListener(() => HandleResponse(true));
         lessThanButton.onClick.AddListener(() => HandleResponse(false));
@@ -59,7 +61,8 @@ public class NumericalDistance : MonoBehaviour
         startPanel.SetActive(true);
         testPanel.SetActive(false);
         
-        StartTest();
+        greaterThanButton.interactable = false;
+        lessThanButton.interactable = false;
     }
 
     void StartTest()
@@ -86,6 +89,12 @@ public class NumericalDistance : MonoBehaviour
         {
             GenerateReport();
             ExportToCSV();
+            
+            // startPanel.SetActive(true);
+            testPanel.SetActive(false);
+            
+            greaterThanButton.interactable = false;
+            lessThanButton.interactable = false;
             return;
         }
 
@@ -125,6 +134,7 @@ public class NumericalDistance : MonoBehaviour
 
         trialResults.Add(new TrialResult
         {
+            TrialNumber = currentTrial,
             Number = currentNumber,
             IsEasyTrial = (currentNumber == 1 || currentNumber == 9),
             ResponseTime = responseTime,
@@ -138,14 +148,10 @@ public class NumericalDistance : MonoBehaviour
 
     void GenerateReport()
     {
-        // Disable buttons
-        greaterThanButton.interactable = false;
-        lessThanButton.interactable = false;
-
         // Calculate statistics
         var easyTrials = trialResults.Where(t => t.IsEasyTrial).ToList();
         var hardTrials = trialResults.Where(t => !t.IsEasyTrial).ToList();
-        promptText.text = "";
+
         string report = "Test Report:\n\n" +
             $"Total Trials: {totalTrials}\n" +
             $"Easy Trials Correct: {easyTrials.Count(t => t.WasCorrect)} / {easyTrials.Count}\n" +
@@ -158,11 +164,7 @@ public class NumericalDistance : MonoBehaviour
         numberDisplayText.text = "";
         // numberDisplayText.text = "Test Complete";
     }
-
-    private void Update()
-    {
-        
-    }
+    
     
     void ExportToCSV()
     {
@@ -207,7 +209,7 @@ public class NumericalDistance : MonoBehaviour
 
         // Create a filename with timestamp to avoid overwriting
         string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-        string filename = $"{fileName}_{trialNumberText}_{timestamp}.csv";
+        string filename = $"{fileName}_{trialNumberInputField.text}_{timestamp}.csv";
         
         return Path.Combine(exportFolder, filename);
     }
