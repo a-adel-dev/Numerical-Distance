@@ -15,10 +15,13 @@ public class NumericalDistance : MonoBehaviour
     [SerializeField] TextMeshProUGUI numberDisplayText;
     [SerializeField] Button greaterThanButton;
     [SerializeField] Button lessThanButton;
+    [SerializeField] Button startButton;
     [SerializeField] TextMeshProUGUI timerText;
     [SerializeField] TextMeshProUGUI resultText;
     [SerializeField] TextMeshProUGUI promptText;
     [SerializeField] int trialNumber;
+    public GameObject startPanel;
+    public GameObject testPanel;
 
     [Header("Test Configuration")]
     public int totalTrials = 10;
@@ -49,19 +52,31 @@ public class NumericalDistance : MonoBehaviour
 
     void Start()
     {
-        testStopwatch = new Stopwatch();
-        testStopwatch.Start();
-        
+        startButton.onClick.AddListener(StartTest);
         greaterThanButton.onClick.AddListener(() => HandleResponse(true));
         lessThanButton.onClick.AddListener(() => HandleResponse(false));
-
+        
+        startPanel.SetActive(true);
+        testPanel.SetActive(false);
+        
         StartTest();
     }
 
     void StartTest()
     {
+        
+        startPanel.SetActive(false);
+        testPanel.SetActive(true);
+        
+        greaterThanButton.interactable = true;
+        lessThanButton.interactable = true;
+        
         trialResults.Clear();
         currentTrial = 0;
+        
+        testStopwatch = new Stopwatch();
+        testStopwatch.Start();
+        
         NextTrial();
     }
 
